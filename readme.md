@@ -1,4 +1,4 @@
-## About chainlib API
+## About nfitness API
 
 chainlib API is a web backend application on Laravel framework with expressive, elegant syntax.
 

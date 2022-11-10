@@ -88,7 +88,7 @@ class ProductController extends Controller
             'profession' => 'required',
             'wallet' => 'required',
             'region' => 'required',
-            'duration' => 'required|int',
+            'duration' => 'required',
             'price' => 'required|int',
             'categoryId' => 'required|int',
             'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
@@ -103,7 +103,7 @@ class ProductController extends Controller
 
         $product = $this->storeProduct($request->all());
         $this->storePrice($product, $request->get('price'));
-        $this->storeImage($product, $request->file('avatar'));
+        $this->storeImage($product, $request->file('image'));
         $this->storeVideo($product, $request->file('video'));
         $this->storeProperty($product, $request->get('wallet'), 'wallet');
         $this->storeProperty($product, $request->get('region'), 'region');

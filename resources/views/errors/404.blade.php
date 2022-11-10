@@ -1,6 +1,5 @@
 @extends('front.app')
 @section('content')
-@include('front.partials.header')
 
     <main class="notFoundContent">
     <div class="container">
@@ -14,12 +13,10 @@
           <p>You can continue shopping by pressing one of the following options:</p>
         </div>
         <div class="buttons">
-          <a href="{{ url('/'.$lang->lang.'/'.$site.'/promotions') }}">{{ trans('vars.HeaderFooter.promo') }}</a>
-          <a href="{{ url('/'.$lang->lang.'/'.$site.'/sale') }}">{{ trans('vars.HeaderFooter.outlet') }}</a>
+          <a href="{{ url('/') }}">Home</a>
         </div>
       </div>
     </div>
     </main>
 
-@include('front.partials.footer')
 @stop

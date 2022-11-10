@@ -162,9 +162,19 @@ class Product extends Model
         return $this->hasMany(ProductBrand::class, 'product_id', 'id');
     }
 
+    public function similarBrands()
+    {
+        return $this->belongsToMany(Brand::class,  'product_brands');
+    }
+
     public function collections()
     {
         return $this->hasMany(ProductCollection::class, 'product_id', 'id');
+    }
+
+    public function similarCollections()
+    {
+        return $this->belongsToMany(Collection::class,  'product_collection');
     }
 
     public function mainImage()
@@ -245,8 +255,13 @@ class Product extends Model
 
     public function similar()
     {
-        return $this->hasMany(ProductSimilar::class);
+        return $this->hasManyThrough(Product::class, ProductSimilar::class, 'product_id', 'id');
     }
+
+//    public function similar()
+//    {
+//        return $this->hasMany(ProductSimilar::class);
+//    }
 
     public function subproducts()
     {
@@ -291,6 +306,11 @@ class Product extends Model
     public function propertyValues()
     {
         return $this->hasMany(ParameterValueProduct::class, 'product_id', 'id')->orderBy('id', 'desc');
+    }
+
+    public function parameters()
+    {
+        return $this->hasMany(ParameterValueProduct::class, 'product_id', 'id')->orderBy('id', 'asc');
     }
 
     public function materials()

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
@@ -35,22 +36,28 @@ class CollectionsController extends Controller
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 900);
 
-        $collections = Collection::with(['translation', 'sets.translation', 'sets.products.translation', 'sets.products.mainImage', 'sets.products.mainPrice', 'sets.products.setImages'])
-                                ->orderBy('position', 'asc')
-                                ->orderBy('created_at', 'desc')
-                                ->get();
+        $collections = Collection::with([
+            'translation',
+            'sets.translation',
+//            'sets.products.translation',
+//            'sets.products.mainImage',
+//            'sets.products.mainPrice',
+//            'sets.products.setImages'
+        ])
+            ->orderBy('position', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('admin.collections.home', compact('collections'));
     }
 
 
-
     public function getCollections()
     {
-        $collections = Collection::with(['translation', 'sets.translation', 'sets.products.translation', 'sets.products.mainImage', 'sets.products.setImages' ,'sets.products.mainPrice'])
-                                ->orderBy('position', 'asc')
-                                ->orderBy('created_at', 'desc')
-                                ->get();
+        $collections = Collection::with(['translation', 'sets.translation', 'sets.products.translation', 'sets.products.mainImage', 'sets.products.setImages', 'sets.products.mainPrice'])
+            ->orderBy('position', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $collections;
     }
@@ -58,9 +65,9 @@ class CollectionsController extends Controller
     public function getSets(Request $request)
     {
         $set = Set::with(['translation', 'products.translation', 'products.mainImage', 'products.setImages', 'products.mainPrice'])
-                ->where('collection_id', $request->get('collection_id'))
-                ->orderBy('position', 'asc')
-                ->get();
+            ->where('collection_id', $request->get('collection_id'))
+            ->orderBy('position', 'asc')
+            ->get();
 
         return $set;
     }
@@ -77,7 +84,7 @@ class CollectionsController extends Controller
             }
         }
 
-        return  $this->getCollections();
+        return $this->getCollections();
     }
 
     public function changeSets(Request $request)
@@ -93,9 +100,9 @@ class CollectionsController extends Controller
         }
 
         return Set::with(['translation', 'products.translation', 'products.mainImage', 'products.setImages'])
-                ->where('collection_id', $request->get('collection_id'))
-                ->orderBy('position', 'asc')
-                ->get();
+            ->where('collection_id', $request->get('collection_id'))
+            ->orderBy('position', 'asc')
+            ->get();
     }
 
     public function changeProducts(Request $request)
@@ -108,14 +115,14 @@ class CollectionsController extends Controller
                 $position++;
                 Product::where('id', $product['id'])->update(['succesion' => $position]);
                 $setProd = SetProducts::where('product_id', $product['id'])
-                                    ->where('set_id', $request->get('set_id'))
-                                    ->update(['position' => $position]);
+                    ->where('set_id', $request->get('set_id'))
+                    ->update(['position' => $position]);
             }
         }
 
         return Set::with(['translation', 'products.translation', 'products.mainImage', 'products.setImages'])
-                        ->where('id', $request->get('set_id'))
-                        ->first();
+            ->where('id', $request->get('set_id'))
+            ->first();
 
     }
 
@@ -144,11 +151,11 @@ class CollectionsController extends Controller
 
         if (count($images) > 0) {
             foreach ($images as $key => $image) {
-                if (file_exists(public_path('images/sets/og/'.$image->src))) {
-                    unlink(public_path('images/sets/og/'.$image->src));
+                if (file_exists(public_path('images/sets/og/' . $image->src))) {
+                    unlink(public_path('images/sets/og/' . $image->src));
                 }
-                if (file_exists(public_path('images/sets/sm/'.$image->src))) {
-                    unlink(public_path('images/sets/sm/'.$image->src));
+                if (file_exists(public_path('images/sets/sm/' . $image->src))) {
+                    unlink(public_path('images/sets/sm/' . $image->src));
                 }
 
                 SetGallery::where('id', $image->id)->delete();
@@ -158,20 +165,20 @@ class CollectionsController extends Controller
         $set->delete();
 
         return Set::with(['translation', 'products.translation', 'products.mainImage', 'products.setImages'])
-                ->where('collection_id', $request->get('collection_id'))
-                ->orderBy('position', 'asc')
-                ->get();
+            ->where('collection_id', $request->get('collection_id'))
+            ->orderBy('position', 'asc')
+            ->get();
     }
 
     public function removeProduct(Request $request)
     {
         $setProduct = SetProducts::where('set_id', $request->get('set_id'))
-                                ->where('product_id', $request->get('product_id'))
-                                ->delete();
+            ->where('product_id', $request->get('product_id'))
+            ->delete();
 
         return Set::with(['translation', 'products.translation', 'products.mainImage', 'products.setImages'])
-                        ->where('id', $request->get('set_id'))
-                        ->first();
+            ->where('id', $request->get('set_id'))
+            ->first();
     }
 
     public function removeSetProductImage(Request $request)
@@ -179,7 +186,7 @@ class CollectionsController extends Controller
         $image = SetProductImage::find($request->get('id'));
 
         if (!is_null($image)) {
-            @unlink(public_path('images/products/set/'.$image->image));
+            @unlink(public_path('images/products/set/' . $image->image));
             $image->delete();
         }
 
@@ -188,13 +195,15 @@ class CollectionsController extends Controller
 
     public function addNewCollection(Request $request)
     {
-        $titles = array_filter($request->get('titles'), function($var){return !is_null($var);} );
+        $titles = array_filter($request->get('titles'), function ($var) {
+            return !is_null($var);
+        });
 
         $alias = str_slug($titles[$this->lang->id]);
 
         $findSlug = Collection::where('alias', $alias)->first();
 
-        if (!is_null($findSlug))  $alias = $alias . rand(0, 100);
+        if (!is_null($findSlug)) $alias = $alias . rand(0, 100);
 
         $collection = Collection::create([
             'alias' => $alias,
@@ -217,12 +226,14 @@ class CollectionsController extends Controller
 
     public function addNewSet(Request $request)
     {
-        $titles = array_filter($request->get('titles'), function($var){return !is_null($var);} );
+        $titles = array_filter($request->get('titles'), function ($var) {
+            return !is_null($var);
+        });
         $alias = str_slug($titles[$this->lang->id]);
 
         $findSlug = Set::where('alias', $alias)->first();
 
-        if (!is_null($findSlug))  $alias = $alias . rand(0, 100);
+        if (!is_null($findSlug)) $alias = $alias . rand(0, 100);
 
         $set = Set::create([
             'alias' => $alias,
@@ -258,8 +269,8 @@ class CollectionsController extends Controller
 
         $finds = array_merge($findsByName, $findsByCode);
 
-        $inSet = SetProducts::where('set_id',  $request->get('set_id'))
-                            ->pluck('product_id')->toArray();
+        $inSet = SetProducts::where('set_id', $request->get('set_id'))
+            ->pluck('product_id')->toArray();
 
         $products = Product::with(['translation', 'mainImage', 'setImages'])->whereIn('id', array_unique($finds))->whereNotIn('id', $inSet)->get();
 
@@ -269,8 +280,8 @@ class CollectionsController extends Controller
     public function addProductToSet(Request $request)
     {
         $setProduct = SetProducts::where('set_id', $request->get('set_id'))
-                                ->where('product_id', $request->get('product_id'))
-                                ->first();
+            ->where('product_id', $request->get('product_id'))
+            ->first();
 
         if (is_null($setProduct)) {
             SetProducts::create([
@@ -280,8 +291,8 @@ class CollectionsController extends Controller
         }
 
         return Set::with(['translation', 'products.translation', 'products.mainImage', 'products.setImages'])
-                        ->where('id', $request->get('set_id'))
-                        ->first();
+            ->where('id', $request->get('set_id'))
+            ->first();
     }
 
     // Restfull methods
@@ -300,19 +311,22 @@ class CollectionsController extends Controller
     public function update(Request $request, $id)
     {
         $collection = Collection::findOrFail($id);
-        $toValidate['title_'.$this->lang->lang] = 'required|max:255';
+        $toValidate['title_' . $this->lang->lang] = 'required|max:255';
         $validator = $this->validate($request, $toValidate);
         $banner = $request->old_banner;
         $banner_mob = $request->old_banner_mob;
         $active = 0;
         $onHome = 0;
         $loungewear = 0;
-        $jewelry    = 0;
+        $jewelry = 0;
 
 
-
-        if ($request->get('loungewear') == 'on') { $loungewear = 1; }
-        if ($request->get('jewelry') == 'on') { $jewelry = 1; }
+        if ($request->get('loungewear') == 'on') {
+            $loungewear = 1;
+        }
+        if ($request->get('jewelry') == 'on') {
+            $jewelry = 1;
+        }
 
         // if ($request->banner) {
         //     $banner = uniqid() . '-' . $request->banner->getClientOriginalName();
@@ -333,58 +347,60 @@ class CollectionsController extends Controller
         //     }
         // }
 
-        if($file = $request->file('banner')){
-            $banner = uniqid(). '-' .$file->getClientOriginalName();
+        if ($file = $request->file('banner')) {
+            $banner = uniqid() . '-' . $file->getClientOriginalName();
             $image_resize = Image::make($file->getRealPath());
 
-            $image_resize->save(public_path('images/collections/og/' .$banner), 75);
-            $image_resize->save(public_path('images/collections/' .$banner), 75);
+            $image_resize->save(public_path('images/collections/og/' . $banner), 75);
+            $image_resize->save(public_path('images/collections/' . $banner), 75);
 
-            $image_resize->resize(480, null, function ($constraint)
-                            {
-                                $constraint->aspectRatio();
-                            })->save('images/collections/sm/' .$banner);
+            $image_resize->resize(480, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save('images/collections/sm/' . $banner);
 
             if ($collection->banner) {
-                @unlink(public_path('images/collections/og/'.$collection->banner));
-                @unlink(public_path('images/collections/sm/'.$collection->banner));
+                @unlink(public_path('images/collections/og/' . $collection->banner));
+                @unlink(public_path('images/collections/sm/' . $collection->banner));
             }
         }
 
-        if($file = $request->file('banner_mob')){
-            $banner_mob = uniqid(). '-' .$file->getClientOriginalName();
+        if ($file = $request->file('banner_mob')) {
+            $banner_mob = uniqid() . '-' . $file->getClientOriginalName();
             $image_resize = Image::make($file->getRealPath());
 
-            $image_resize->save(public_path('images/collections/og/' .$banner_mob), 75);
-            $image_resize->save(public_path('images/collections/' .$banner_mob), 75);
+            $image_resize->save(public_path('images/collections/og/' . $banner_mob), 75);
+            $image_resize->save(public_path('images/collections/' . $banner_mob), 75);
 
-            $image_resize->resize(480, null, function ($constraint)
-                            {
-                                $constraint->aspectRatio();
-                            })->save('images/collections/sm/' .$banner_mob);
+            $image_resize->resize(480, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save('images/collections/sm/' . $banner_mob);
 
             if ($collection->banner_mob) {
-                @unlink(public_path('images/collections/og/'.$collection->banner_mob));
-                @unlink(public_path('images/collections/sm/'.$collection->banner_mob));
+                @unlink(public_path('images/collections/og/' . $collection->banner_mob));
+                @unlink(public_path('images/collections/sm/' . $collection->banner_mob));
             }
         }
 
-        foreach ($this->langs as $lang){
+        foreach ($this->langs as $lang) {
             $image[$lang->lang] = '';
-            if ($request->file('image_'. $lang->lang)) {
-              $image[$lang->lang] = uniqid() . '-' . $request->file('image_'. $lang->lang)->getClientOriginalName();
-              $request->file('image_'. $lang->lang)->move('images/collections', $image[$lang->lang]);
-            }else{
-                if ($request->get('old_image_'. $lang->lang)) {
-                    $image[$lang->lang] = $request->get('old_image_'. $lang->lang);
+            if ($request->file('image_' . $lang->lang)) {
+                $image[$lang->lang] = uniqid() . '-' . $request->file('image_' . $lang->lang)->getClientOriginalName();
+                $request->file('image_' . $lang->lang)->move('images/collections', $image[$lang->lang]);
+            } else {
+                if ($request->get('old_image_' . $lang->lang)) {
+                    $image[$lang->lang] = $request->get('old_image_' . $lang->lang);
                 }
             }
         }
 
-        if ($request->active == 'on') { $active = 1; }
-        if ($request->on_home == 'on') { $onHome = 1; }
+        if ($request->active == 'on') {
+            $active = 1;
+        }
+        if ($request->on_home == 'on') {
+            $onHome = 1;
+        }
 
-        $collection->alias = str_slug(request('title_'.$this->lang->lang));
+        $collection->alias = str_slug(request('title_' . $this->lang->lang));
         $collection->banner = $banner;
         $collection->banner_mob = $banner_mob;
         $collection->active = $active;
@@ -500,7 +516,7 @@ class CollectionsController extends Controller
                         'set_price' => 1,
                         'set_discount' => $discount
                     ]);
-                }else{
+                } else {
                     // if ($price->set_discount <= $discount) {
                     $price->update([
                         'set_price' => $price->old_price - ($price->old_price * $discount / 100),
@@ -521,7 +537,7 @@ class CollectionsController extends Controller
                 'banner_mob' => null,
             ]);
             @unlink(public_path('/images/collections/' . $collection->banner_mob));
-        }else{
+        } else {
             $collection->update([
                 'banner' => null,
             ]);
@@ -538,9 +554,9 @@ class CollectionsController extends Controller
         $product = Product::findOrFail($request->get('product_id'));
 
         if ($set->gift_product_id == $product->id) {
-            $set->update(['gift_product_id' =>  0]);
-        }else{
-            $set->update(['gift_product_id' =>  $product->id]);
+            $set->update(['gift_product_id' => 0]);
+        } else {
+            $set->update(['gift_product_id' => $product->id]);
         }
 
         foreach ($set->products as $key => $product) {
@@ -549,7 +565,7 @@ class CollectionsController extends Controller
                     $price->update([
                         'set_price' => 1,
                     ]);
-                }else{
+                } else {
                     // if ($price->set_discount <= $set->discount) {
                     $price->update([
                         'set_price' => $price->old_price - ($price->old_price * $set->discount / 100),
@@ -560,8 +576,8 @@ class CollectionsController extends Controller
         }
 
         return Set::with(['translation', 'products.translation', 'products.mainImage', 'products.setImages'])
-                        ->where('id', $request->get('set_id'))
-                        ->first();
+            ->where('id', $request->get('set_id'))
+            ->first();
     }
 
 }

@@ -14,34 +14,32 @@ use Illuminate\Http\Request;
 */
 
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::get('/en/download/image/{src}', 'PagesController@downloadImage');
-
-
-Route::post('/en/api/details/order', 'API\CheckoutController@setOrderDetails');
-Route::post('/en/api/pay/order', 'API\CheckoutController@pay');
-
-Route::get('/en/api/search', 'API\ProductsController@searchProducts');
-Route::get('/en/api/offers', 'API\OfferController@getOffers');
-Route::post('/en/api/offer', 'API\OfferController@createOffer');
-Route::post('/en/api/book', 'API\OfferController@submitBook');
-
-
-Route::patch('/api/cart', 'API\CheckoutController@changeQtyCart')->middleware('cors');
-Route::delete('/api/cart', 'API\CheckoutController@deleteCart')->middleware('cors');
-Route::delete('/api/carts', 'API\CheckoutController@deleteAllCarts')->middleware('cors');
-Route::post('/api/cart', 'API\CheckoutController@setCart');
-
-Route::post('/en/api/cart', 'API\CheckoutController@setCart');
-Route::patch('/en/api/cart', 'API\CheckoutController@changeQtyCart');
-Route::delete('/en/api/cart', 'API\CheckoutController@deleteCart');
-Route::delete('/en/api/carts', 'API\CheckoutController@deleteAllCarts');
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
 
 
 Route::group(['prefix' => 'api'], function () {
+
+    Route::get('categories', 'API\v2\CategoryController@index');
+
+    Route::get('category/{id}', 'API\v2\CategoryController@getById');
+
+    Route::get('experts', 'API\v2\ProductController@index');
+
+    Route::get('experts/search', 'API\v2\ProductController@search');
+
+    Route::get('experts/featured', 'API\v2\ProductController@getFeatured');
+
+    Route::get('expert/{id}', 'API\v2\ProductController@getById');
+
+    Route::post('expert', 'API\v2\ProductController@createProduct');
+
+});
+
+
+
+Route::group(['prefix' => 'api_'], function () {
     Route::get('settings', 'API\SettingsController@getSettings');
     Route::get('translations', 'API\SettingsController@getTranslations');
     Route::get('banners', 'API\SettingsController@getBanners');

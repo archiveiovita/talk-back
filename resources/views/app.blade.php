@@ -40,18 +40,11 @@
     <div class="main-wrapper">
         <div class="app" id="app">
 
-            <header class="header">
-                @yield('nav-bar')
-            </header>
-
-        @yield('left-menu')
-
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <article class="content items-list-page">
             @yield('content')
         </article>
 
-        @yield('footer')
 
         </div>
     </div>

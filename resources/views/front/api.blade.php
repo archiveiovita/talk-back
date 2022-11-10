@@ -38,7 +38,7 @@
                     </li>
 
                     <li>
-                        <p>GET expert by  id:</p>
+                        <p>GET expert by id:</p>
                         <a href="{{ Request::url() . '/api/expert/1'}}" target="_blank">
                             {{ Request::url() . '/api/expert/{id}'}}
                         </a>
@@ -65,6 +65,40 @@
                         </a>
                     </li>
                 </ul>
+
+                <div>
+                <h5>Example Value | Schema</h5>
+<pre style="font-family: 'Colibri'; line-height: 1.5; font-size: 18px">
+<code>
+{
+    "categoryId" : 0
+    "name": "string",
+    "description" : "string",
+    "profession" : "string",
+    "wallet" : "string",
+    "region" : "string",
+    "duration" : "string",
+    "price" : 0,
+    "image" : file,
+    "video" : file,
+    "services" : [
+        {
+            "name" : "string",
+            "image" : file,
+        },
+        {
+            "name" : "string",
+            "image" : file,
+        },
+        {
+            "name" : "string",
+            "image" : file,
+        },
+    ]
+}
+</code>
+</pre>
+                </div>
             </div>
         </div>
     </main>

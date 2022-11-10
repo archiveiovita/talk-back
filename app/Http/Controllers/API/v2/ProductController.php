@@ -110,6 +110,8 @@ class ProductController extends Controller
         $this->storeProperty($product, $request->get('duration'), 'duration');
         $this->storeProperty($product, $request->get('profession'), 'profession');
         $this->storeServices($product, $request->get('services'), $request->file('services'));
+
+        return new ProductResource($product);
     }
 
 

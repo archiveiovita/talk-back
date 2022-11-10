@@ -20,7 +20,7 @@ class ProductReviewResource extends JsonResource
             'author' => $this->translation->name,
             'profession' => $this->translation->seo_title,
             'image' => $this->logo ? $domain.'/images/brands/'.$this->logo : null,
-            'review' => $this->translation->description,
+            'review' => strip_tags($this->translation->description),
         ];
     }
 }

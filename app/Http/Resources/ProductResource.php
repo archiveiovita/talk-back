@@ -28,9 +28,11 @@ class ProductResource extends JsonResource
             'description' => (string)$this->translation->description,
             'rating' => (string)$this->translation->atributes,
             'available' => (bool)$this->homewear,
+            'lastReview' => $this->updated_at->diffForHumans(),
+            'memberSince' => $this->created_at->format('M Y'),
             'price' => (string)$this->mainPrice->price,
             'image' => $this->mainImage ? $domain . '/images/products/og/' .$this->mainImage->src : null,
-            'video' => $this->video ? $domain . '/videos/' . $this->video : null,
+            'video' => $this->video ?? null,
         ];
 
         $data = array_merge($data, $properties);

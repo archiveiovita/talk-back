@@ -92,6 +92,18 @@ class ProductController extends Controller
             'price' => 'required|int',
             'categoryId' => 'required|int',
             'image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
+            'videoUrl' => [
+                'required',
+                'url',
+                function ($attribute, $yt_url, $fail) {
+                    $url_parsed_arr = parse_url($yt_url);
+                    if ($url_parsed_arr['host'] == "www.youtube.com" && $url_parsed_arr['path'] == "/watch" && substr($url_parsed_arr['query'], 0, 2) == "v=" && substr($url_parsed_arr['query'], 2) != "") {
+                        return;
+                    } else {
+                        $fail(trans("validation.not_youtube_url", ["name" => trans("validation.active_url")]));
+                    }
+                },
+            ],
             'services.*.name' => 'required',
             'services.*.image' => 'required|image|mimes:jpg,png,jpeg,gif,svg|max:2048',
         ]);
@@ -104,7 +116,9 @@ class ProductController extends Controller
         $product = $this->storeProduct($request->all());
         $this->storePrice($product, $request->get('price'));
         $this->storeImage($product, $request->file('image'));
-        $this->storeVideo($product, $request->file('video'));
+        $this->storeVideo($product, $request->get('videoUrl'));
+
+        return new ProductResource($product);
         $this->storeProperty($product, $request->get('wallet'), 'wallet');
         $this->storeProperty($product, $request->get('region'), 'region');
         $this->storeProperty($product, $request->get('duration'), 'duration');
@@ -176,16 +190,18 @@ class ProductController extends Controller
         }
     }
 
-    private function storeVideo($product, $video)
+    private function storeVideo($product, $videoUrl)
     {
-        if ($video) {
-            $videoName = uniqid() . $video->getClientOriginalName();
-            $path = public_path() . '/videos/';
-            $video->move($path, $videoName);
+        if ($videoUrl) {
+            parse_str(parse_url($videoUrl, PHP_URL_QUERY), $youtubeVideoId);
 
-            $product->update([
-                'video' => $videoName
-            ]);
+            if (is_array($youtubeVideoId) && array_key_exists('v', $youtubeVideoId)) {
+                $videoField = '<iframe width="100%" height="315" src="https://www.youtube.com/embed/' . $youtubeVideoId['v'] . '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+
+                $product->update([
+                    'video' => $videoField,
+                ]);
+            }
         }
     }
 

@@ -80,7 +80,7 @@
     "duration" : "string",
     "price" : 0,
     "image" : file,
-    "video" : file,
+    "videoUrl" : "sting",
     "services" : [
         {
             "name" : "string",

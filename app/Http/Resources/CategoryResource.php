@@ -20,7 +20,7 @@ class CategoryResource extends JsonResource
             'name' => (string)$this->translation->name,
             'description' => (string)$this->translation->description,
             'slug' => (string)$this->alias,
-            'icon' => $this->banner_desktop ? $domain . '/categories/' . $this->banner_desktop : null,
+            'icon' => $this->banner_desktop ? $domain . '/images/categories/og/' . $this->banner_desktop : null,
             'children' => CategoryResource::collection($this->children),
         ];
     }

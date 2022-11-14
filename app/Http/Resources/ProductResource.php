@@ -20,10 +20,12 @@ class ProductResource extends JsonResource
         $reviews = ProductReviewResource::collection($this->similarBrands);
         $domain = $request->root();
 
+
         $data = [
             'id' => (int)$this->id,
             'categoryId' => (int)$this->category_id,
             'slug' => (string)$this->alias,
+            'categorySlug' => (string)$this->category->alias,
             'name' => (string)$this->translation->name,
             'description' => (string)$this->translation->description,
             'rating' => (string)$this->translation->atributes,

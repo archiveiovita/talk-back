@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Base as Model;
 use App\Setup;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use App\Models\FrontUserUnlogged;
 use App\Models\Lang;

@@ -44,6 +44,53 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
+    public function getBySlug(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'slug' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $data = ['errors' => $validator->errors()];
+            return response()->json($data, 422);
+        }
+
+        $categorySlug = stripslashes(trim(htmlspecialchars($request->get('category_slug'))));
+        $productSlug = stripslashes(trim(htmlspecialchars($request->get('slug'))));
+
+        $product = Product::where('alias', $productSlug)->first();
+
+        if (!$product) {
+            $data = [ 'errors' => ["slug" => [
+                "The expert with the slug '" . $productSlug . "' was not found."
+            ]]];
+            return response()->json($data, 404);
+        }
+
+        if ($categorySlug) {
+            $category = ProductCategory::where('alias', $categorySlug)->first();
+            if (!$category) {
+                $data = [ 'errors' => ["category_slug" => [
+                    "The category with the slug '" . $categorySlug . "' was not found."
+                ]]];
+
+                return response()->json($data, 404);
+            }
+
+            if ($category->id !== $product->category_id) {
+                $data = [ 'errors' => ["slug" => [
+                    "The expert does not correspond to the category found."
+                ],"category_slug" => [
+                    "The category does not correspond to the expert found."
+                ]]];
+
+                return response()->json($data, 404);
+            }
+        }
+
+        return new ProductResource($product);
+    }
+
     public function search(Request $request)
     {
         if ($request->get('find')) {

@@ -23,6 +23,8 @@ Route::group(['prefix' => 'api'], function () {
 
     Route::get('categories', 'API\v2\CategoryController@index');
 
+    Route::get('category', 'API\v2\CategoryController@getBySlug');
+
     Route::get('category/{id}', 'API\v2\CategoryController@getById');
 
     Route::get('experts', 'API\v2\ProductController@index');
@@ -30,6 +32,8 @@ Route::group(['prefix' => 'api'], function () {
     Route::get('experts/search', 'API\v2\ProductController@search');
 
     Route::get('experts/featured', 'API\v2\ProductController@getFeatured');
+
+    Route::get('expert', 'API\v2\ProductController@getBySlug');
 
     Route::get('expert/{id}', 'API\v2\ProductController@getById');
 

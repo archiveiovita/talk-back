@@ -21,6 +21,17 @@
                             {{ Request::url() . '/api/category/{id}'}}
                         </a>
                     </li>
+                    <li>
+                        <p>GET category by slug:</p>
+                        <a href="{{ Request::url() . '/api/category?slug=investments'}}" target="_blank">
+                            {{ Request::url() . '/api/category?slug=investments'}}
+                        </a>
+                        <p>
+                            <small style="color: #c20303; font-size: 14px;">
+                                * slug - required;
+                            </small>
+                        </p>
+                    </li>
                     <hr>
 
                     <li>
@@ -35,6 +46,19 @@
                         <a href="{{ Request::url() . '/api/experts?category_id=1'}}" target="_blank">
                             {{ Request::url() . '/api/experts?category_id=1'}}
                         </a>
+                    </li>
+
+                    <li>
+                        <p>GET expert by slug:</p>
+                        <a href="{{ Request::url() . '/api/expert?slug=boris-e-hinkle&category_slug=investments'}}" target="_blank">
+                            {{ Request::url() . '/api/expert?slug=boris-e-hinkle&category_slug=investments'}}
+                        </a>
+                        <p>
+                            <small style="color: #c20303; font-size: 14px;">
+                                * slug - required; &nbsp; &nbsp; &nbsp; &nbsp;
+                                category_slug - not required
+                            </small>
+                        </p>
                     </li>
 
                     <li>

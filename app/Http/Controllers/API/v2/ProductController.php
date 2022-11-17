@@ -61,7 +61,7 @@ class ProductController extends Controller
         $product = Product::where('alias', $productSlug)->first();
 
         if (!$product) {
-            $data = [ 'errors' => ["slug" => [
+            $data = ['errors' => ["slug" => [
                 "The expert with the slug '" . $productSlug . "' was not found."
             ]]];
             return response()->json($data, 404);
@@ -70,7 +70,7 @@ class ProductController extends Controller
         if ($categorySlug) {
             $category = ProductCategory::where('alias', $categorySlug)->first();
             if (!$category) {
-                $data = [ 'errors' => ["category_slug" => [
+                $data = ['errors' => ["category_slug" => [
                     "The category with the slug '" . $categorySlug . "' was not found."
                 ]]];
 
@@ -78,9 +78,9 @@ class ProductController extends Controller
             }
 
             if ($category->id !== $product->category_id) {
-                $data = [ 'errors' => ["slug" => [
+                $data = ['errors' => ["slug" => [
                     "The expert does not correspond to the category found."
-                ],"category_slug" => [
+                ], "category_slug" => [
                     "The category does not correspond to the expert found."
                 ]]];
 
@@ -110,13 +110,13 @@ class ProductController extends Controller
                 ->paginate(20);
 
             return ProductResource::collection($products);
-        } else {
-            $data = ['errors' => [
-                'message' => 'field find is required.',
-                'status_code' => '422'
-            ]];
-            return response()->json($data, 422);
         }
+
+        $data = ['errors' => [
+            'message' => 'field find is required.',
+            'status_code' => '404'
+        ]];
+        return response()->json($data, 404);
     }
 
     public function getFeatured()
@@ -165,7 +165,6 @@ class ProductController extends Controller
         $this->storeImage($product, $request->file('image'));
         $this->storeVideo($product, $request->get('videoUrl'));
 
-        return new ProductResource($product);
         $this->storeProperty($product, $request->get('wallet'), 'wallet');
         $this->storeProperty($product, $request->get('region'), 'region');
         $this->storeProperty($product, $request->get('duration'), 'duration');

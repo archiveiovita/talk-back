@@ -107,7 +107,7 @@ class ProductController extends Controller
 
             $products = Product::whereIn('id', $productsFindIds)
                 ->orwhereIn('category_id', $categoriesFindIds)
-                ->get();
+                ->paginate(20);
 
             return ProductResource::collection($products);
         } else {

@@ -29,8 +29,19 @@ class AppServiceProvider extends ServiceProvider
 {
     public function boot(Request $request)
     {
-        $setup = new Setup($request);
-        $setup->init();
+        if ($request->method() === "GET") {
+            $setup = new Setup($request);
+            $setup->init();
+            return;
+        }
+
+        if (!$request->segment(1) ||
+            ($request->segment(1) == 'auth') ||
+            ($request->segment(1) == 'back') ||
+            ($request->segment(2) == 'js')) {
+            $setup = new Setup($request);
+            $setup->init();
+        }
     }
 
     /**

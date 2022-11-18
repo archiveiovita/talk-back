@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\v2;
 
+use App\Base as Model;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\SearchProductsRequest;
@@ -22,9 +23,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\ImageManagerStatic as Image;
 use SebastianBergmann\Diff\Exception;
+use App\Setup;
 
 class ProductController extends Controller
 {
+    protected $langs;
+
+    public function __construct()
+    {
+        $this->langs = Lang::get();
+        $cuurency = Currency::first();
+        Model::$lang = Lang::first()->id;
+        Model::$currency = $cuurency->id;
+        Model::$mainCurrency = $cuurency->id;
+    }
+
     public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $categoryId = $request->get('category_id');
@@ -129,6 +142,9 @@ class ProductController extends Controller
 
     public function createProduct(Request $request)
     {
+//        $setup = new Setup($request);
+//        $setup->init();
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'description' => 'required',
@@ -144,8 +160,12 @@ class ProductController extends Controller
                 'url',
                 function ($attribute, $yt_url, $fail) {
                     $url_parsed_arr = parse_url($yt_url);
-                    if ($url_parsed_arr['host'] == "www.youtube.com" && $url_parsed_arr['path'] == "/watch" && substr($url_parsed_arr['query'], 0, 2) == "v=" && substr($url_parsed_arr['query'], 2) != "") {
-                        return;
+                    if (array_key_exists('host', $url_parsed_arr) && array_key_exists('path', $url_parsed_arr) && array_key_exists('query', $url_parsed_arr)) {
+                        if ($url_parsed_arr['host'] == "www.youtube.com" && $url_parsed_arr['path'] == "/watch" && substr($url_parsed_arr['query'], 0, 2) == "v=" && substr($url_parsed_arr['query'], 2) != "") {
+                            return;
+                        } else {
+                            $fail(trans("validation.not_youtube_url", ["name" => trans("validation.active_url")]));
+                        }
                     } else {
                         $fail(trans("validation.not_youtube_url", ["name" => trans("validation.active_url")]));
                     }
@@ -161,6 +181,8 @@ class ProductController extends Controller
         }
 
         $product = $this->storeProduct($request->all());
+
+
         $this->storePrice($product, $request->get('price'));
         $this->storeImage($product, $request->file('image'));
         $this->storeVideo($product, $request->get('videoUrl'));
@@ -184,6 +206,7 @@ class ProductController extends Controller
             'alias' => str_slug($data['name']),
             'active' => 1
         ]);
+
 
         foreach ($this->langs as $lang) {
             $product->translations()->create([
@@ -261,16 +284,18 @@ class ProductController extends Controller
         try {
             if ($property) {
                 $parameter = $this->getParameterByKey($key);
-                $parameterValueProduct = ParameterValueProduct::create([
-                    'parameter_id' => $parameter->id,
-                    'product_id' => $product->id,
-                ]);
-
-                foreach ($this->langs as $lang) {
-                    $parameterValueProduct->translations()->create([
-                        'lang_id' => $lang->id,
-                        'value' => $property
+                if ($parameter) {
+                    $parameterValueProduct = ParameterValueProduct::create([
+                        'parameter_id' => $parameter->id,
+                        'product_id' => $product->id,
                     ]);
+
+                    foreach ($this->langs as $lang) {
+                        $parameterValueProduct->translations()->create([
+                            'lang_id' => $lang->id,
+                            'value' => $property
+                        ]);
+                    }
                 }
             }
         } catch (Exception $e) {
@@ -280,27 +305,36 @@ class ProductController extends Controller
 
     public function storeServices($product, $services, $files)
     {
-        foreach ($services as $key => $service) {
-            $imageName = $this->uploadServiceImage($files[$key]['image']);
+        try {
+            foreach ($services as $key => $service) {
+                $imageName = null;
 
-            $collection = Collection::create([
-                'banner' => $imageName,
-                'active' => 1,
-                'position' => 1
-            ]);
+                if ($files) {
+                    $imageName = $this->uploadServiceImage($files[$key]['image']);
+                }
 
-            foreach ($this->langs as $lang) {
-                $collection->translations()->create([
-                    'lang_id' => $lang->id,
-                    'name' => $service['name'],
+                $collection = Collection::create([
+                    'banner' => $imageName,
+                    'active' => 1,
+                    'position' => 1
+                ]);
+
+                foreach ($this->langs as $lang) {
+                    $collection->translations()->create([
+                        'lang_id' => $lang->id,
+                        'name' => $service['name'],
+                    ]);
+                }
+
+                ProductCollection::create([
+                    'product_id' => $product->id,
+                    'collection_id' => $collection->id,
                 ]);
             }
+        } catch (Exception $e) {
 
-            ProductCollection::create([
-                'product_id' => $product->id,
-                'collection_id' => $collection->id,
-            ]);
         }
+
     }
 
     private function uploadServiceImage($file): string

@@ -106,18 +106,20 @@ class Product extends Model
 
     public function mainPrice()
     {
-        $dillerGroupId = $this->getUserGroupId();
-        $prices = new ProductPrice();
+        return $this->hasOne(ProductPrice::class, 'product_id', 'id');
 
-        if (!is_null($dillerGroupId)) {
-            if ($dillerGroupId == 'b2b_prices') {
-                return $this->hasOne(ProductPrice::class)->where('currency_id', self::$mainCurrency);
-            }else{
-                return $this->hasOne(ProductDillerPrice::class)->where('diller_group_id', $dillerGroupId)->where('currency_id', self::$mainCurrency);
-            }
-        }else{
-            return $this->hasOne(ProductPrice::class)->where('currency_id', self::$mainCurrency);
-        }
+//        $dillerGroupId = $this->getUserGroupId();
+//        $prices = new ProductPrice();
+//
+//        if (!is_null($dillerGroupId)) {
+//            if ($dillerGroupId == 'b2b_prices') {
+//                return $this->hasOne(ProductPrice::class)->where('currency_id', self::$mainCurrency);
+//            }else{
+//                return $this->hasOne(ProductDillerPrice::class)->where('diller_group_id', $dillerGroupId)->where('currency_id', self::$mainCurrency);
+//            }
+//        }else{
+//            return $this->hasOne(ProductPrice::class)->where('currency_id', self::$mainCurrency);
+//        }
     }
 
     public function personalPrice()

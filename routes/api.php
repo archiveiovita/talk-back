@@ -18,6 +18,13 @@ use Illuminate\Http\Request;
 //    return $request->user();
 //});
 
+//Route::post('/en/api/expert', 'API\v2\ProductController@createProduct');
+
+//Route::post('/api/some', function (\http\Client\Request $request) {
+//    return [];
+//});
+
+Route::post('/en/api/book', 'API\OfferController@submitBook');
 
 Route::group(['prefix' => 'api'], function () {
 
@@ -36,6 +43,7 @@ Route::group(['prefix' => 'api'], function () {
     Route::get('expert', 'API\v2\ProductController@getBySlug');
 
     Route::get('expert/{id}', 'API\v2\ProductController@getById');
+
 
     Route::post('expert', 'API\v2\ProductController@createProduct');
 

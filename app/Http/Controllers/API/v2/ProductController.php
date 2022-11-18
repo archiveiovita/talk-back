@@ -142,9 +142,6 @@ class ProductController extends Controller
 
     public function createProduct(Request $request)
     {
-//        $setup = new Setup($request);
-//        $setup->init();
-
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'description' => 'required',
@@ -201,12 +198,18 @@ class ProductController extends Controller
     //_________________________________________________________
     private function storeProduct($data)
     {
+        $slug = str_slug($data['name']);
+        $findSlug = Product::select('alias')->where('alias', $slug)->first();
+
+        if($findSlug) {
+            $slug = str_slug($data['name'].rand(1,1000));
+        }
+
         $product = Product::create([
             'category_id' => $data['categoryId'],
-            'alias' => str_slug($data['name']),
+            'alias' => $slug,
             'active' => 1
         ]);
-
 
         foreach ($this->langs as $lang) {
             $product->translations()->create([
@@ -306,7 +309,7 @@ class ProductController extends Controller
     public function storeServices($product, $services, $files)
     {
         try {
-            if($services) {
+            if ($services) {
                 foreach ($services as $key => $service) {
                     $imageName = null;
 

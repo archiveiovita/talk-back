@@ -306,30 +306,32 @@ class ProductController extends Controller
     public function storeServices($product, $services, $files)
     {
         try {
-            foreach ($services as $key => $service) {
-                $imageName = null;
+            if($services) {
+                foreach ($services as $key => $service) {
+                    $imageName = null;
 
-                if ($files) {
-                    $imageName = $this->uploadServiceImage($files[$key]['image']);
-                }
+                    if ($files) {
+                        $imageName = $this->uploadServiceImage($files[$key]['image']);
+                    }
 
-                $collection = Collection::create([
-                    'banner' => $imageName,
-                    'active' => 1,
-                    'position' => 1
-                ]);
+                    $collection = Collection::create([
+                        'banner' => $imageName,
+                        'active' => 1,
+                        'position' => 1
+                    ]);
 
-                foreach ($this->langs as $lang) {
-                    $collection->translations()->create([
-                        'lang_id' => $lang->id,
-                        'name' => $service['name'],
+                    foreach ($this->langs as $lang) {
+                        $collection->translations()->create([
+                            'lang_id' => $lang->id,
+                            'name' => $service['name'],
+                        ]);
+                    }
+
+                    ProductCollection::create([
+                        'product_id' => $product->id,
+                        'collection_id' => $collection->id,
                     ]);
                 }
-
-                ProductCollection::create([
-                    'product_id' => $product->id,
-                    'collection_id' => $collection->id,
-                ]);
             }
         } catch (Exception $e) {
 
